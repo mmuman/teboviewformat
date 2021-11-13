@@ -123,3 +123,147 @@ with open(sys.argv[1], "rb") as f:
 
 	for i in range(0, nrLayers):
 		dumpLayer(data, i)
+
+
+
+
+# hints: strings from:
+
+# DCodeManagerModule.dll
+#donut%sx%s
+#rect%sx%sxr%s
+#rect%sx%sxr%sxa%d
+#oval%sx%s
+#oval%sx%sxa%d
+#rect%sx%s
+#rect%sx%sxa%d
+#
+#triangle
+#diamond
+#hexagon
+#Octagon
+#Thermal
+#Target
+
+# IctGraphicFunction.dll
+#?AddPad_Circle@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@J@Z
+#?AddPad_Rect@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@JJN@Z
+#?AddPad_Oblong@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@JJN@Z
+#?AddPad_Donut@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@JJ@Z
+#?AddPad_Thermal@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@JJJN@Z
+#?AddPad_DCode@CPhysicLayerEditor@@QAEPAVIPad@@PAUtagPOINT@@PAVIDCodeManager@@H@Z
+
+# OutputPcbFunction.dll
+#Pads
+#TestPoints
+#Fonts
+#LayerSets
+#LayerNames
+#Layers
+#Padstacks
+#Parts
+#Packages
+#Padsymbols
+#Nets
+#Fab
+
+# IctData.dll
+#TestPad
+#DrlLayer
+#MillLayer
+#PanelLayer
+#Line
+#Surface
+#Text
+#ColorLine
+#DrlHole
+#DrlCircle
+#DrlSlot
+#DrlArc
+#MillPoly
+#MillZBrushRemark
+#Panel
+#TestPad HoleSize
+#TestPad Mask
+#TestPad DCode
+#%s(%d)
+#TestPad Net
+#TestPad CenterPoint Y Coordinate
+#TestPad CenterPoint X Coordinate
+#TestPad Name
+#TestPad Is TP
+#Unknown(%d)
+#TestPad Type
+#TestPad No
+#Layer Type
+#Layer Pad Color
+#Layer Line Color
+#Layer Name
+#Layer Init Name
+#Layer Line/Pad Visible
+#Layer Init Path
+#Drl From Layer
+#Drl To Layer
+#.aft
+#complex
+#italic
+#romans
+#\Setting\
+#Auto-ICT Font 1.0
+#Pad CenterPoint X Coordinate
+#Pad CenterPoint Y Coordinate
+#UnTest Reason
+#Pad Hole CenterPoint Coordinate
+#Pad Hole Size cy
+#Pad Hole Size cx
+#Pad Mask
+#DCode Height
+#DCode Width
+#DCode Shape
+#DCode No.
+#Net No.
+#EndPoint Y Coordinate
+#EndPoint X Coordinate
+#BeginPoint Y Coordinate
+#BeginPoint X Coordinate
+#StartPoint Y Coordinate
+#StartPoint X Coordinate
+#CenterPoint Y Coordinate
+#CenterPoint X Coordinate
+#StartAngle
+#%.2f
+#SweepAngle
+#Clockwise
+#Surface edge num
+#Line Width
+#%d(I%d)
+#Surface void num
+#False
+#True
+#Text mirror
+#Text angle
+#Text Location
+#Text Content
+#Font Weight
+#Font Height
+#Text Font
+#Text Color
+#Line Color
+#Hole CenterPoint X Coordinate
+#Hole CenterPoint Y Coordinate
+#Tool No.
+#Tool Size
+#Circle CenterPoint X Coordinate
+#Circle CenterPoint Y Coordinate
+#Circle Diameter
+#Z Value
+#Accurate Tool Size
+#Accurate Tool No.
+#Inch
+#[%d]%s
+#Angle
+#NC_%d
+#IctData.dll
+#Arial
+#BOTTOM
+#%%2.%df
