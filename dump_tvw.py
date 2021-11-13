@@ -36,14 +36,55 @@ def dumpLayer(data, i):
 	print("PadColor	0x%x" % getUInt32(data))
 	print("LineColor	0x%x" % getUInt32(data))
 	# Whatever ?
-	for n in range(0, 80):
-		#print("?	0x%x" % getUInt32(data))
-		x, y = getInt32(data), getInt32(data)
-		print("?	0x%x %i , 0x%x %i" % (x, x, y, y))
-		x, y = getInt32(data), getInt32(data)
-		print("?		0x%x %i , 0x%x %i" % (x, x, y, y))
-		x, y = getInt32(data), getInt32(data)
-		print("?		0x%x %i , 0x%x %i" % (x, x, y, y))
+	shapes = []
+	# maybe rather the start id for shapes
+	nItems = getUInt32(data)
+	for n in range(0, nItems):
+		#nShapes = getUInt32(data)
+		#for m in range(0, nShapes):
+		# is it some item type or count ?
+		itemType = getUInt32(data)
+		if itemType == 1:
+			# bounds ?
+			bounds = getInt32(data), getInt32(data)
+			print(bounds)
+			if bounds != (0, 1):
+				shapeType = getUInt32(data)
+				shapeTypes = ['rounded??', 'rect', 'empty??', 'rounded', 'circle', 'FAIL to open', '??', '??', '???', '???']
+				print("shapeType: 0x%x" % shapeType)
+				print("Shape: %s (0x%x) %i x %i (0x%x x 0x%x)" % (shapeTypes[shapeType], shapeType, bounds[0], bounds[1], bounds[0], bounds[1]))
+				unknown = getInt32(data)
+				print("?	0x%x" % (unknown))
+				# curvature radius?
+				radius = getInt32(data)
+				print("radius?	0x%x %i" % (radius, radius))
+				shapes.append({'type': shapeType, 'bounds': bounds, 'args': [unknown, radius]})
+			else:
+				nPads = getInt32(data)
+				print("nPads?	0x%x" % (nPads))
+				unknown1 = getInt32(data)
+				print("?	0x%x" % (unknown1))
+				unknown2 = getInt32(data)
+				print("?	0x%x" % (unknown2))
+				for m in range(0, nPads):
+					idx = getInt32(data)
+					print("shapeIndex	0x%x %i" % (idx, idx))
+					pos = getInt32(data), getInt32(data)
+					print("shape[%i] at %i x %i (0x%x x 0x%x)" % (idx, pos[0], pos[1], pos[0], pos[1]))
+					unknownP = getInt32(data)
+					print("?	0x%x" % (unknownP))
+					# 3 unknown null bytes, could be empty strings?
+					print("?	%s" % getPString(data))
+					print("?	%s" % getPString(data))
+					print("?	%s" % getPString(data))
+		elif itemType == 8:
+			unknown = getInt32(data)
+			print("?	0x%x %i" % (unknown, unknown))
+			print("?	0x%x %i" % (unknown, unknown))
+			
+			
+		else:
+			raise SystemExit("Unknown itemType %s" % itemType)
 
 if len(sys.argv) < 2:
 	raise SystemExit("usage: %s file.tvw" % sys.argv[0])
