@@ -12,6 +12,30 @@ def getPString(data):
 	del data[0:l]
 	return s.decode('utf-8')
 
+# Read an uint8 from d
+def getUInt8(data):
+	(i,) = struct.unpack("<B",data[0:1])
+	del data[0:1]
+	return i
+
+# Read an int8 from d
+def getInt8(data):
+	(i,) = struct.unpack("<b",data[0:1])
+	del data[0:1]
+	return i
+
+# Read an LE uint16 from d
+def getUInt16(data):
+	(i,) = struct.unpack("<H",data[0:2])
+	del data[0:2]
+	return i
+
+# Read an LE int16 from d
+def getInt16(data):
+	(i,) = struct.unpack("<h",data[0:2])
+	del data[0:2]
+	return i
+
 # Read an LE uint32 from d
 def getUInt32(data):
 	(i,) = struct.unpack("<I",data[0:4])
@@ -36,9 +60,145 @@ def dumpLayer(data, i):
 	print("PadColor	0x%x" % getUInt32(data))
 	print("LineColor	0x%x" % getUInt32(data))
 	# Whatever ?
-	shapes = []
+	shapes = {}
 	# maybe rather the start id for shapes
 	nItems = getUInt32(data)
+	print("nItems!?	%d" % nItems)
+
+	# Read D-Code definitions
+	dCodes = {}
+	dCodeIdx = 10
+	while True:
+		unknownD = getUInt32(data)
+		assert unknownD == 1
+		w = getInt32(data)
+		h = getInt32(data)
+		if w == 0:
+			# w = 0 & h = 1 ??
+			break
+		bounds = [w, h]
+		shapeTypes = ['Round', 'rect', 'empty??', 'Oblong', 'circle', 'FAIL to open', '??', '??', '???', '???']
+		shape = getUInt32(data)
+		# ???, curvature radius?
+		extra1, extra2 = getInt32(data), getInt32(data)
+		print("DCode %d: %i x %i (0x%x x 0x%x) %s (%i) E1: %d %x E2: %d %x" % (dCodeIdx, bounds[0], bounds[1], bounds[0], bounds[1], shapeTypes[shape], shape, extra1, extra1, extra2, extra2))
+		dCodes[dCodeIdx] = (unknownD, bounds, shape, extra1, extra2)
+		dCodeIdx += 1
+	print("DCodes: %s" % dCodes)
+
+	# Now it seems each shapes are listed sorted by types, with the count for each prefixed?
+
+	nPad = getUInt32(data)
+	print("== %d pads" % nPad)
+	if nPad:
+		print("?	0x%x" % getUInt32(data))
+		for n in range(0, nPad):
+			# Net, dCode, x, y, 
+			# then 3 bytes? (flags?) Seems to indicate further data like hole definition
+			p = {
+		'net': getUInt32(data), 
+		'dcode': getUInt32(data), 
+		'x': getInt32(data),
+		'y': getInt32(data),
+		'u1': getUInt8(data),
+		'u2': getUInt8(data),
+		'u3': getUInt8(data)
+		}
+			print(p['dcode'])
+			print("Pad(%s): %s" % (shapeTypes[dCodes[p['dcode']][2]], p))
+
+	nLine = getUInt32(data)
+	print("== %d lines" % nLine)
+	if nLine:
+		print("?	0x%x" % getUInt32(data))
+		for n in range(0, nLine):
+			# Net, dCode, x0, y0, x1, y1
+			p = {
+		'net': getUInt32(data), 
+		'dcode': getUInt32(data), 
+		'x0': getInt32(data),
+		'y0': getInt32(data),
+		'x1': getInt32(data),
+		'y1': getInt32(data),
+		}
+			print("Line(%s): %s" % (shapeTypes[dCodes[p['dcode']][2]], p))
+
+	# unknown
+	assert getUInt32(data) == 0
+
+	nSurface = getUInt32(data)
+	print("== %d surfaces" % nSurface)
+	if nSurface:
+		for n in range(0, nSurface):
+			print("?	0x%x" % getUInt32(data))
+			net = getUInt32(data)
+			edgeCount = getUInt32(data)
+			print("=== %d edges %x" % (edgeCount, edgeCount))
+			#startX, startY = getInt32(data), getInt32(data)
+			edges = []
+			for e in range(0, edgeCount):
+				edges.append([getInt32(data), getInt32(data)])
+			# linewidth??
+			unknownS = getInt32(data)
+			print("???	%d %x" % (unknownS, unknownS))
+			assert unknownS == 0
+			voidCount = getUInt32(data)
+			print("=== %d voids" % voidCount)
+			voids = {}
+			for v in range(0, voidCount):
+				print("?	0x%x" % getUInt32(data))
+				voids[v] = []
+				voidEdgeCount = getUInt32(data)
+				print("void(%i):	%i edges" % (v, voidEdgeCount))
+				for e in range(0, voidEdgeCount):
+					edge = getInt32(data), getInt32(data)
+					print(edge)
+					voids[v].append(edge)
+				print(voids[v])
+
+	# unknown
+	assert getUInt32(data) == 0
+
+	nText = getUInt32(data)
+	print("== %d texts" % nText)
+	if nText:
+		print("?	0x%x" % getUInt32(data))
+		for n in range(0, nText):
+			text = getPString(data)
+			print("Text:	%s" % (text))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+			print("?	0x%x" % (getUInt32(data)))
+
+
+
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+	print("?	0x%x" % (getUInt32(data)))
+
+
+
+def unused():
 	for n in range(0, nItems):
 		#nShapes = getUInt32(data)
 		#for m in range(0, nShapes):
@@ -50,7 +210,7 @@ def dumpLayer(data, i):
 			print(bounds)
 			if bounds != (0, 1):
 				shapeType = getUInt32(data)
-				shapeTypes = ['rounded??', 'rect', 'empty??', 'rounded', 'circle', 'FAIL to open', '??', '??', '???', '???']
+				shapeTypes = ['rounded??', 'rect', 'empty??', 'Round', 'circle', 'FAIL to open', '??', '??', '???', '???']
 				print("shapeType: 0x%x" % shapeType)
 				print("Shape: %s (0x%x) %i x %i (0x%x x 0x%x)" % (shapeTypes[shapeType], shapeType, bounds[0], bounds[1], bounds[0], bounds[1]))
 				unknown = getInt32(data)
