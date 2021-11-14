@@ -77,7 +77,7 @@ def dumpLayer(data, i):
 			# w = 0 & h = 1 ??
 			break
 		bounds = [w, h]
-		shapeTypes = ['Round', 'rect', 'empty??', 'Oblong', 'circle', 'FAIL to open', '??', '??', '???', '???']
+		shapeTypes = ['Round', 'Rectangle?', 'Round rectangle?', 'Oblong', 'circle??', 'FAIL to open', '??', '??', '???', '???']
 		shape = getUInt32(data)
 		# ???, curvature radius?
 		extra1, extra2 = getInt32(data), getInt32(data)
