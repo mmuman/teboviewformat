@@ -89,14 +89,14 @@ def dumpLayer(data, i):
 	# Now it seems each shapes are listed sorted by types, with the count for each prefixed?
 
 	nPad = getUInt32(data)
-	print("== %d pads" % nPad)
+	print("\n== %d pads" % nPad)
 	if nPad:
 		print("?	0x%x" % getUInt32(data))
 		for n in range(0, nPad):
 			# Net, dCode, x, y, 
 			# then 3 bytes? (flags?) Seems to indicate further data like hole definition
 			p = {
-		'net': getUInt32(data), 
+		'net': getInt32(data),
 		'dcode': getUInt32(data), 
 		'x': getInt32(data),
 		'y': getInt32(data),
@@ -108,14 +108,14 @@ def dumpLayer(data, i):
 			print("Pad(%s): %s" % (shapeTypes[dCodes[p['dcode']][2]], p))
 
 	nLine = getUInt32(data)
-	print("== %d lines" % nLine)
+	print("\n== %d lines" % nLine)
 	if nLine:
 		print("?	0x%x" % getUInt32(data))
 		for n in range(0, nLine):
 			# Net, dCode, x0, y0, x1, y1
 			p = {
-		'net': getUInt32(data), 
-		'dcode': getUInt32(data), 
+		'net': getInt32(data),
+		'dcode': getUInt32(data),
 		'x0': getInt32(data),
 		'y0': getInt32(data),
 		'x1': getInt32(data),
@@ -123,44 +123,67 @@ def dumpLayer(data, i):
 		}
 			print("Line(%s): %s" % (shapeTypes[dCodes[p['dcode']][2]], p))
 
-	# unknown
-	assert getUInt32(data) == 0
+	nArc = getUInt32(data)
+	print("\n== %d arcs" % nArc)
+	if nArc:
+		print("?	0x%x" % getUInt32(data))
+		for n in range(0, nArc):
+			# Net, dCode, x, y, 3 * unknown
+			a = {
+		'net': getInt32(data),
+		'dcode': getUInt32(data),
+		'x': getInt32(data),
+		'y': getInt32(data),
+		'u1': getInt32(data),
+		'u2': getInt32(data),
+		'u3': getInt32(data),
+		}
+			print("Arc(%s): %s" % (shapeTypes[dCodes[a['dcode']][2]], a))
 
 	nSurface = getUInt32(data)
-	print("== %d surfaces" % nSurface)
+	print("\n== %d surfaces" % nSurface)
 	if nSurface:
+		# should we pop it HERE?
+		print("?	0x%x" % getUInt32(data))
 		for n in range(0, nSurface):
-			print("?	0x%x" % getUInt32(data))
-			net = getUInt32(data)
+			# or HERE??
+			#print("?	0x%x" % getUInt32(data))
+			print("\nSurface[%i]:" % n)
+			net = getInt32(data)
+			print("Net: %d" % (net))
 			edgeCount = getUInt32(data)
 			print("=== %d edges %x" % (edgeCount, edgeCount))
 			#startX, startY = getInt32(data), getInt32(data)
 			edges = []
 			for e in range(0, edgeCount):
 				edges.append([getInt32(data), getInt32(data)])
+			print(edges)
 			# linewidth??
 			unknownS = getInt32(data)
 			print("???	%d %x" % (unknownS, unknownS))
 			assert unknownS == 0
 			voidCount = getUInt32(data)
 			print("=== %d voids" % voidCount)
-			voids = {}
-			for v in range(0, voidCount):
-				print("?	0x%x" % getUInt32(data))
-				voids[v] = []
-				voidEdgeCount = getUInt32(data)
-				print("void(%i):	%i edges" % (v, voidEdgeCount))
-				for e in range(0, voidEdgeCount):
-					edge = getInt32(data), getInt32(data)
-					print(edge)
-					voids[v].append(edge)
-				print(voids[v])
+			if voidCount:
+				voids = {}
+				for v in range(0, voidCount):
+					print("?	0x%x" % getUInt32(data))
+					voids[v] = []
+					voidEdgeCount = getUInt32(data)
+					print("void(%i):	%i edges" % (v, voidEdgeCount))
+					for e in range(0, voidEdgeCount):
+						edge = getInt32(data), getInt32(data)
+						print(edge)
+						voids[v].append(edge)
+					print(voids[v])
+#			else:
+#				print("?	0x%x" % getUInt32(data))
 
 	# unknown
 	assert getUInt32(data) == 0
 
 	nText = getUInt32(data)
-	print("== %d texts" % nText)
+	print("\n== %d texts" % nText)
 	if nText:
 		print("?	0x%x" % getUInt32(data))
 		for n in range(0, nText):
